@@ -24,8 +24,7 @@ const allowedOrigins = [
 app.use(
     cors({
         origin: function (origin, callback) {
-            // Allow requests without origin
-            // (Postman, server-to-server, etc.)
+            // Allow requests like Postman/server-to-server
             if (!origin) {
                 return callback(null, true);
             }
@@ -55,16 +54,15 @@ app.use(
     })
 );
 
-// Handle preflight requests
-app.options("*", cors());
-
 // =======================
 // BODY PARSER
 // =======================
 
 app.use(express.json());
 
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({
+    extended: false
+}));
 
 app.use(cookieParser());
 
