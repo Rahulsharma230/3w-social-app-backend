@@ -11,15 +11,56 @@ dotenv.config();
 
 const app = express();
 
-//  MIDDLEWARE 
+// =======================
+// CORS CONFIGURATION
+// =======================
 
-// Enable CORS from frontend
-app.use(cors({
-    origin: ["http://localhost:3000", "https://3w-social-app-frontend.vercel.app"],
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"]
-}));
+const allowedOrigins = [
+    "http://localhost:3000",
+    "https://3w-social-app-frontend-git-main-rahulsharma230-5508.vercel.app",
+    "https://3w-social-app-frontend.vercel.app"
+];
+
+app.use(
+    cors({
+        origin: function (origin, callback) {
+            // Allow requests without origin
+            // (Postman, server-to-server, etc.)
+            if (!origin) {
+                return callback(null, true);
+            }
+
+            if (allowedOrigins.includes(origin)) {
+                return callback(null, true);
+            }
+
+            return callback(new Error("Not allowed by CORS"));
+        },
+
+        credentials: true,
+
+        methods: [
+            "GET",
+            "POST",
+            "PUT",
+            "PATCH",
+            "DELETE",
+            "OPTIONS"
+        ],
+
+        allowedHeaders: [
+            "Content-Type",
+            "Authorization"
+        ]
+    })
+);
+
+// Handle preflight requests
+app.options("*", cors());
+
+// =======================
+// BODY PARSER
+// =======================
 
 app.use(express.json());
 
@@ -27,14 +68,17 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use(cookieParser());
 
-
-//  ROUTES 
+// =======================
+// ROUTES
+// =======================
 
 app.use("/api/auth", authRoutes);
+
 app.use("/api/posts", postRoutes);
 
-
-//  MONGODB CONNECTION 
+// =======================
+// MONGODB CONNECTION
+// =======================
 
 mongoose
     .connect(process.env.DB)
@@ -45,9 +89,12 @@ mongoose
         console.log("MongoDB connection failed:", error.message);
     });
 
+// =======================
+// SERVER
+// =======================
 
-//  SERVER 
+const PORT = process.env.PORT || 8080;
 
-app.listen(process.env.PORT, () => {
-    console.log(`App is running on port ${process.env.PORT}`);
+app.listen(PORT, () => {
+    console.log(`App is running on port ${PORT}`);
 });
